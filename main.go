@@ -27,5 +27,10 @@ func main() {
 		nex.StartSecureServer()
 	}()
 
+	// StartTokenServer returns immediately (a no-op) unless
+	// PN_LR_TOKEN_SERVER_PORT is set, so it does not need to join the
+	// WaitGroup -- see docs/ACCESS_KEY.md.
+	go nex.StartTokenServer()
+
 	wg.Wait()
 }

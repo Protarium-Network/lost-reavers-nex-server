@@ -65,6 +65,23 @@ type Config struct {
 	HealthCheckPort int
 
 	AllowPublicMatchmaking bool
+
+	// TokenServerPort, when non-zero, runs a small local-only HTTP endpoint
+	// answering GET /v1/api/provider/nex_token/@me?game_server_id=1018D900
+	// with this server's own address. It exists to sit behind a reverse
+	// proxy's path/query matcher (e.g. Caddy's `@lostreavers_token` block) so
+	// that a real account server can keep handling everything else (OAuth
+	// login, service tokens) for a title Pretendo's real account database has
+	// no entry for -- see docs/ACCESS_KEY.md. Bind it to localhost only; it
+	// answers unauthenticated and is meant to be reached exclusively through
+	// the reverse proxy's path match, not directly from the internet.
+	TokenServerPort int
+	TokenServerHost string
+
+	// NEXTokenPID / NEXTokenPassword are the standalone-mode NEX credentials
+	// the token endpoint hands back. Must match an entry in SettingsFile.
+	NEXTokenPID      uint64
+	NEXTokenPassword string
 }
 
 var Settings Config
@@ -163,6 +180,16 @@ func LoadConfig() error {
 		problems = append(problems, err.Error())
 	}
 
+	tokenServerPort, err := envPort("PN_LR_TOKEN_SERVER_PORT", 0)
+	if err != nil {
+		problems = append(problems, err.Error())
+	}
+
+	nexTokenPID, err := envInt("PN_LR_NEX_TOKEN_PID", 0)
+	if err != nil {
+		problems = append(problems, err.Error())
+	}
+
 	// * 3.10.0 is confirmed via kinnay's wiiu.json library fingerprint database
 	// * -- see the comment on globals.go's game constants. Still overridable
 	// * without a rebuild in case a packet capture ever shows otherwise.
@@ -210,6 +237,15 @@ func LoadConfig() error {
 		LogRMC:                   envBool("PN_LR_LOG_RMC", true),
 		LogMatchmaking:           envBool("PN_LR_LOG_MATCHMAKING", true),
 		AllowPublicMatchmaking:   envBool("PN_LR_ALLOW_PUBLIC_MATCHMAKING", true),
+		TokenServerPort:          tokenServerPort,
+		TokenServerHost:          envString("PN_LR_TOKEN_SERVER_HOST", "127.0.0.1"),
+		NEXTokenPID:              uint64(nexTokenPID),
+		NEXTokenPassword:         envString("PN_LR_NEX_TOKEN_PASSWORD", ""),
+	}
+
+	if Settings.TokenServerPort != 0 && (Settings.NEXTokenPID == 0 || Settings.NEXTokenPassword == "") {
+		problems = append(problems, "PN_LR_TOKEN_SERVER_PORT is set but PN_LR_NEX_TOKEN_PID / PN_LR_NEX_TOKEN_PASSWORD are not -- "+
+			"the token endpoint needs to know which standalone account to vouch for, and it must match an entry in settings.json")
 	}
 
 	if Settings.SecureServerHost == "" {
