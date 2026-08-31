@@ -1,0 +1,15 @@
+.git
+.github
+.env
+.env.*
+settings.json
+build
+**/log
+*.log
+*.pcap
+*.pcapng
+.gocache
+.gomodcache
+.gotmp
+.venv
+docs

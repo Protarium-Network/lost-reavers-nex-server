@@ -1,0 +1,29 @@
+{
+  "_comment": [
+    "NEX accounts for standalone mode (PN_LR_LOCAL_AUTH=1). Copy this file to",
+    "settings.json and put one entry here per console.",
+    "",
+    "'pid' and 'password' must be the NEX principal ID and NEX password your",
+    "account server issued to that console. They are not the NNID/PNID login",
+    "details: the console receives them inside its NEX token and derives its",
+    "Kerberos key from them, so if the value here differs by one character the",
+    "handshake fails with 'Invalid Kerberos checksum'.",
+    "",
+    "'username' is the PID again, as a decimal string. That is what a Wii U",
+    "sends as strUserName in LoginEx.",
+    "",
+    "This is deliberately the same shape as nex-viewer's settings.json, so the",
+    "same file works for both.",
+    "",
+    "The server re-reads this file on every login: adding a console does not",
+    "need a restart."
+  ],
+  "accounts": [
+    {
+      "platform": "wiiu",
+      "username": "1799999999",
+      "pid": 1799999999,
+      "password": "aBcDeFgHiJkLmNoP"
+    }
+  ]
+}

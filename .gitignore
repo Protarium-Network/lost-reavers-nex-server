@@ -1,0 +1,34 @@
+# Secrets and per-deployment configuration
+.env
+.env.*
+!.env.example
+settings.json
+settings.*.json
+!settings.example.json
+
+# Build output
+/build/
+lost-reavers
+*.exe
+coverage.out
+
+# Runtime and local tooling
+*.log
+/log/
+**/log/
+.gocache/
+.gomodcache/
+.gotmp/
+.venv/
+.idea/
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Captures and temporary files — these routinely carry an unreleased access
+# key or a real console's Kerberos exchange, so they must never be committed.
+*.pcap
+*.pcapng
+*.bak
+*.orig
+*~

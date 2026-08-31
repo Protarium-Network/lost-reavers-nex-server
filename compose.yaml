@@ -1,0 +1,75 @@
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: lostreavers
+      POSTGRES_PASSWORD: lostreavers
+      POSTGRES_DB: lostreavers
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U lostreavers -d lostreavers"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # DataStore object bodies (treasure/inventory blobs). Point PN_LR_S3_* at
+  # any S3-compatible provider instead if you'd rather not self-host this.
+  minio:
+    image: minio/minio:latest
+    restart: unless-stopped
+    command: server /data --console-address ":9001"
+    environment:
+      MINIO_ROOT_USER: lostreavers
+      MINIO_ROOT_PASSWORD: lostreavers-datastore
+    volumes:
+      - minio-data:/data
+    healthcheck:
+      test: ["CMD", "mc", "ready", "local"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  nex:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      postgres:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    environment:
+      PN_LR_AUTHENTICATION_SERVER_PORT: 60000
+      PN_LR_SECURE_SERVER_PORT: 60001
+      # Override this. It is written into the Kerberos ticket and dialled by
+      # the console verbatim, so it must be an address the console can reach --
+      # your LAN IP, or your public address / domain for play over the
+      # internet. The container's own IP will not do.
+      PN_LR_SECURE_SERVER_HOST: ${PN_LR_SECURE_SERVER_HOST:?set PN_LR_SECURE_SERVER_HOST to an address your console can reach}
+      PN_LR_POSTGRES_URI: postgres://lostreavers:lostreavers@postgres:5432/lostreavers?sslmode=disable
+      # No default: see docs/ACCESS_KEY.md. The server refuses to start
+      # without this set.
+      PN_LR_ACCESS_KEY: ${PN_LR_ACCESS_KEY:?set PN_LR_ACCESS_KEY once you have captured it -- see docs/ACCESS_KEY.md}
+      PN_LR_S3_ENDPOINT: minio:9000
+      PN_LR_S3_ACCESS_KEY: lostreavers
+      PN_LR_S3_SECRET_KEY: lostreavers-datastore
+      PN_LR_S3_USE_SSL: "0"
+      PN_LR_LOCAL_AUTH: "1"
+      PN_LR_LOG_RMC: "1"
+      PN_LR_LOG_MATCHMAKING: "1"
+      #PN_LR_HEALTH_CHECK_PORT: "60002"
+    ports:
+      # PRUDP is UDP. Dropping the /udp suffix publishes TCP and nothing works.
+      - "60000:60000/udp"
+      - "60001:60001/udp"
+      #- "60002:60002/udp"
+    volumes:
+      # Create this file BEFORE the first `docker compose up`
+      # (`cp settings.example.json settings.json`). Docker silently creates a
+      # DIRECTORY when a bind mount points at a file that does not exist.
+      - ./settings.json:/app/settings.json:ro
+
+volumes:
+  postgres-data:
+  minio-data:
