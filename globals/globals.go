@@ -53,6 +53,18 @@ const (
 	ServerBuildString = "branch:origin/release/ngs/3.10.x.200x build:3_10_22_2006_0"
 )
 
+// ServiceTokenClientIDs are the two X-Nintendo-Client-ID / client_id values
+// a real console requests independent service tokens for while trying to
+// reach this title, observed directly in the production account server's
+// access log (neither is registered there, so both 404 without this
+// server's own token endpoint intercepting them too -- see
+// docs/ACCESS_KEY.md and nex/token_server.go). Nobody has documented what
+// distinguishes the two; both are handled identically here.
+var ServiceTokenClientIDs = []string{
+	"c63718c04fd84947a6b41ffacbe53e39",
+	"71a6f5d6430ea0183e3917787d717c46",
+}
+
 var Logger *plogger.Logger
 
 // KerberosPassword is the shared secret of the two special server accounts. It

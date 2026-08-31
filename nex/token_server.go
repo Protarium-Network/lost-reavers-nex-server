@@ -1,11 +1,17 @@
 package nex
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/xml"
 	"fmt"
 	"net/http"
+	"slices"
+	"strconv"
+	"time"
 
 	"lost-reavers/globals"
 )
@@ -42,6 +48,7 @@ func StartTokenServer() {
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/v1/api/provider/nex_token/@me", handleNEXToken)
+	mux.HandleFunc("/v1/api/provider/service_token/@me", handleServiceToken)
 
 	address := fmt.Sprintf("%s:%d", globals.Settings.TokenServerHost, globals.Settings.TokenServerPort)
 
@@ -81,6 +88,67 @@ func handleNEXToken(w http.ResponseWriter, r *http.Request) {
 
 	globals.Logger.Infof("Token server: issuing a NEX token for PID %d, pointing at %s:%d",
 		response.PID, response.Host, response.Port)
+
+	w.Header().Set("Content-Type", "text/xml")
+	w.WriteHeader(http.StatusOK)
+
+	fmt.Fprint(w, xml.Header)
+	_ = xml.NewEncoder(w).Encode(response)
+}
+
+// serviceTokenResponse mirrors PretendoNetwork/account's GET
+// /provider/service_token/@me (src/services/nnas/routes/provider.ts).
+type serviceTokenResponse struct {
+	XMLName xml.Name `xml:"service_token"`
+	Token   string   `xml:"token"`
+}
+
+// handleServiceToken answers GET /v1/api/provider/service_token/@me for the
+// client_id values Lost Reavers itself requests (see
+// globals.ServiceTokenClientIDs), which 404 on the real account server
+// because that client_id was never registered there -- the console gives up
+// on this title entirely at that point, without ever asking for a NEX token.
+//
+// The response format is PretendoNetwork/account's createServiceToken
+// (src/util.ts): a 28-byte struct (pid, title_id, issued, expires, all
+// big-endian) plus a 32-byte HMAC-SHA256, base64-encoded. The console can't
+// verify the signature -- only the real game backend holds that per-title
+// secret -- so a made-up key is fine; what matters is the struct being the
+// right shape so client-side parsing doesn't choke on it.
+func handleServiceToken(w http.ResponseWriter, r *http.Request) {
+	clientID := r.URL.Query().Get("client_id")
+	if !slices.Contains(globals.ServiceTokenClientIDs, clientID) {
+		globals.Logger.Warningf("Token server got service_token client_id=%q, none of the ones this title is known to request -- check globals.ServiceTokenClientIDs",
+			clientID)
+		w.WriteHeader(http.StatusNotFound)
+		return
+	}
+
+	titleID, err := strconv.ParseUint(globals.TitleIDEUR, 16, 64)
+	if err != nil {
+		globals.Logger.Errorf("Token server: TitleIDEUR does not parse as hex: %v", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
+
+	now := time.Now()
+	expires := now.Add(time.Hour)
+
+	data := make([]byte, 28)
+	binary.BigEndian.PutUint32(data[0:4], uint32(globals.Settings.NEXTokenPID))
+	binary.BigEndian.PutUint64(data[4:12], titleID)
+	binary.BigEndian.PutUint64(data[12:20], uint64(now.UnixMilli()))
+	binary.BigEndian.PutUint64(data[20:28], uint64(expires.UnixMilli()))
+
+	mac := hmac.New(sha256.New, []byte("lost-reavers-capture-fake-server-key"))
+	mac.Write(data)
+	signature := mac.Sum(nil)
+
+	response := serviceTokenResponse{
+		Token: base64.StdEncoding.EncodeToString(append(data, signature...)),
+	}
+
+	globals.Logger.Infof("Token server: issuing a service token for client_id=%s, PID %d", clientID, globals.Settings.NEXTokenPID)
 
 	w.Header().Set("Content-Type", "text/xml")
 	w.WriteHeader(http.StatusOK)
