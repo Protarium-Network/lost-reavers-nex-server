@@ -40,8 +40,8 @@ services:
       minio:
         condition: service_healthy
     environment:
-      PN_LR_AUTHENTICATION_SERVER_PORT: 60000
-      PN_LR_SECURE_SERVER_PORT: 60001
+      PN_LR_AUTHENTICATION_SERVER_PORT: ${PN_LR_AUTHENTICATION_SERVER_PORT:-60000}
+      PN_LR_SECURE_SERVER_PORT: ${PN_LR_SECURE_SERVER_PORT:-60001}
       # Override this. It is written into the Kerberos ticket and dialled by
       # the console verbatim, so it must be an address the console can reach --
       # your LAN IP, or your public address / domain for play over the
@@ -59,11 +59,22 @@ services:
       PN_LR_LOG_RMC: "1"
       PN_LR_LOG_MATCHMAKING: "1"
       #PN_LR_HEALTH_CHECK_PORT: "60002"
+      # Optional: a local-only nex_token HTTP endpoint for a reverse proxy's
+      # path/query matcher to sit behind -- see docs/ACCESS_KEY.md. Set
+      # PN_LR_TOKEN_SERVER_PORT to enable it (it must bind 0.0.0.0 *inside*
+      # the container for Docker's port publishing to reach it at all; the
+      # "127.0.0.1:" prefix below is what keeps it off the public internet,
+      # by only publishing it on the host's own loopback).
+      PN_LR_TOKEN_SERVER_PORT: ${PN_LR_TOKEN_SERVER_PORT:-0}
+      PN_LR_TOKEN_SERVER_HOST: 0.0.0.0
+      PN_LR_NEX_TOKEN_PID: ${PN_LR_NEX_TOKEN_PID:-0}
+      PN_LR_NEX_TOKEN_PASSWORD: ${PN_LR_NEX_TOKEN_PASSWORD:-}
     ports:
       # PRUDP is UDP. Dropping the /udp suffix publishes TCP and nothing works.
-      - "60000:60000/udp"
-      - "60001:60001/udp"
+      - "${PN_LR_AUTHENTICATION_SERVER_PORT:-60000}:${PN_LR_AUTHENTICATION_SERVER_PORT:-60000}/udp"
+      - "${PN_LR_SECURE_SERVER_PORT:-60001}:${PN_LR_SECURE_SERVER_PORT:-60001}/udp"
       #- "60002:60002/udp"
+      - "127.0.0.1:${PN_LR_TOKEN_SERVER_PORT:-8102}:${PN_LR_TOKEN_SERVER_PORT:-8102}/tcp"
     volumes:
       # Create this file BEFORE the first `docker compose up`
       # (`cp settings.example.json settings.json`). Docker silently creates a
