@@ -48,9 +48,10 @@ services:
       # internet. The container's own IP will not do.
       PN_LR_SECURE_SERVER_HOST: ${PN_LR_SECURE_SERVER_HOST:?set PN_LR_SECURE_SERVER_HOST to an address your console can reach}
       PN_LR_POSTGRES_URI: postgres://lostreavers:lostreavers@postgres:5432/lostreavers?sslmode=disable
-      # No default: see docs/ACCESS_KEY.md. The server refuses to start
-      # without this set.
-      PN_LR_ACCESS_KEY: ${PN_LR_ACCESS_KEY:?set PN_LR_ACCESS_KEY once you have captured it -- see docs/ACCESS_KEY.md}
+      # Confirmed against a real console -- see docs/ACCESS_KEY.md. Override
+      # only if a future capture ever shows a different key for another
+      # region/patch.
+      PN_LR_ACCESS_KEY: ${PN_LR_ACCESS_KEY:-625f8dcc}
       PN_LR_S3_ENDPOINT: minio:9000
       PN_LR_S3_ACCESS_KEY: lostreavers
       PN_LR_S3_SECRET_KEY: lostreavers-datastore

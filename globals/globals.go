@@ -25,16 +25,19 @@ import (
 // Utility is registered anyway, defensively, the same reasoning Ultra Smash
 // applies to its own unconfirmed protocols (see nex/register_secure_protocols.go).
 //
-// The access key is the one thing still NOT public anywhere: absent from
-// kinnay's NEX server list (https://kinnay.github.io/view.html?page=nexwiiu),
-// nex-viewer's access.txt, and the wiiu.json fingerprint database above (which
-// records library versions, not credentials). See docs/ACCESS_KEY.md.
+// The access key was absent from every public source (kinnay's NEX server
+// list, nex-viewer's access.txt, the wiiu.json fingerprint database, and the
+// executable itself). It is now CONFIRMED: captured from a real Wii U
+// console's first PRUDP packet against this server and recovered with
+// Pretendo's access-key-extractor in bruteforce mode, then verified live --
+// the same console completed LoginEx, RequestTicket and SecureConnection
+// Register against it. See docs/ACCESS_KEY.md for the full method.
 //
 //	Title ID (JPN) 000500001018D900
 //	Title ID (USA) 00050000101A4800
 //	Title ID (EUR) 00050000101B9900
 //	Game server ID 0x1018D900 (JPN, used as canonical -- see globals/config.go)
-//	Access key     UNKNOWN -- must be captured, see docs/ACCESS_KEY.md
+//	Access key     625f8dcc -- CONFIRMED live against a real console
 //	NEX version    3.10.0 -- CONFIRMED via kinnay's wiiu.json
 const (
 	TitleIDJPN = "000500001018D900"

@@ -10,13 +10,6 @@ PRUDP, built on [Pretendo Network](https://github.com/PretendoNetwork)'s
 libraries this project's Sonic & All-Stars Racing Transformed and Mario
 Tennis: Ultra Smash servers use.
 
-> **This server has not yet been run against a real console or Cemu.** The
-> protocol set is inferred from the game's own executable (see
-> [docs/PROTOCOLS.md](docs/PROTOCOLS.md)), and the access key — without which
-> nothing will work at all — is not publicly known and must be captured; see
-> [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md). Everything below describes what
-> is *built*, not what is *confirmed working*.
-
 ---
 
 ## Game constants
@@ -25,7 +18,7 @@ Tennis: Ultra Smash servers use.
 |---|---|
 | Title IDs | `000500001018D900` (JPN), `00050000101A4800` (USA), `00050000101B9900` (EUR) |
 | Game server ID | `0x1018D900` |
-| Access key | **UNKNOWN — see [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md)** |
+| Access key | **`625f8dcc`** — confirmed live against a real console, see [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md) |
 | NEX version | **3.10.0** — confirmed, see below |
 
 Sources: title IDs and NEX version are triple/cross-confirmed from
@@ -35,10 +28,11 @@ the game's own executable strings, and kinnay's
 [wiiu.json](https://kinnay.github.io/data/wiiu.json) library fingerprint
 database, which also confirms DataStore/Ranking/MatchMaking/Messaging are
 genuinely linked (and Utility isn't) — see
-[docs/PROTOCOLS.md](docs/PROTOCOLS.md). The access key is the one thing
-absent from every public source checked, including that same fingerprint
-database (it records library *versions*, not credentials) — see
-[docs/ACCESS_KEY.md](docs/ACCESS_KEY.md).
+[docs/PROTOCOLS.md](docs/PROTOCOLS.md). The access key was absent from every
+public source, including that same fingerprint database (it records library
+*versions*, not credentials) — recovered instead from a real console's own
+captured packet; see [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md) for the full
+method.
 
 All three regions share one game server ID, so they share one matchmaking
 pool.

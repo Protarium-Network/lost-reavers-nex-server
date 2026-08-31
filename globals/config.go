@@ -213,7 +213,12 @@ func LoadConfig() error {
 		SecureServerHost:         envString("PN_LR_SECURE_SERVER_HOST", ""),
 		SecureServerPort:         securePort,
 		PostgresURI:              envString("PN_LR_POSTGRES_URI", postgresDatabaseURI(envString("PN_POSTGRES_URI", ""), "lostreavers")),
-		AccessKey:                envString("PN_LR_ACCESS_KEY", ""),
+		// * 625f8dcc is now confirmed (see globals.go and docs/ACCESS_KEY.md),
+		// * so unlike every other field here it has a real, correct default --
+		// * still overridable, mainly so a bad guess can never silently ship as
+		// * the new default if this title's key is ever found to differ per
+		// * region or patch.
+		AccessKey: envString("PN_LR_ACCESS_KEY", "625f8dcc"),
 		NEXVersionMajor:          nexMajor,
 		NEXVersionMinor:          nexMinor,
 		NEXVersionPatch:          nexPatch,
@@ -254,11 +259,6 @@ func LoadConfig() error {
 
 	if Settings.PostgresURI == "" {
 		problems = append(problems, "PN_LR_POSTGRES_URI environment variable not set. Example: postgres://lostreavers:lostreavers@localhost/lostreavers?sslmode=disable")
-	}
-
-	if Settings.AccessKey == "" {
-		problems = append(problems, "PN_LR_ACCESS_KEY environment variable not set. Lost Reavers' access key is not publicly documented and there is no safe default -- "+
-			"see docs/ACCESS_KEY.md for how to capture it. Do not guess: a wrong key makes every console packet fail silently")
 	}
 
 	if Settings.AuthenticationServerPort == Settings.SecureServerPort {
