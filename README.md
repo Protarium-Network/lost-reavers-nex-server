@@ -18,7 +18,7 @@ Tennis: Ultra Smash servers use.
 |---|---|
 | Title IDs | `000500001018D900` (JPN), `00050000101A4800` (USA), `00050000101B9900` (EUR) |
 | Game server ID | `0x1018D900` |
-| Access key | **`625f8dcc`** — confirmed live against a real console, see [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md) |
+| Access key | **`625f8dcc`** |
 | NEX version | **3.10.0** — confirmed, see below |
 
 Sources: title IDs and NEX version are triple/cross-confirmed from
