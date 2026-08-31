@@ -38,8 +38,49 @@ this UE3 branch's internal codename). Confirmed present, by protocol:
 | **DataStore** (`0x73`) | Extensive: `DataStorePreparePostParam`, `DataStoreFileServerClient` (large-object HTTP transfer), `DataStoreRatingInitParamWithSlot`, `UUDKUIDataStore_*`. This is the strongest signal in the whole binary — over 1,600 matching symbols — and is why this server implements DataStore fully rather than skipping it the way the Mario Tennis: Ultra Smash server does |
 | **Ranking** (`0x70`) | `RankingProtocolClient`, `CallGetRankingByPIDList` |
 | **Messaging** (`0x17`) | `MessagingServiceDDLDeclarations`, `MessagingProtocolClient`, `CallRetrieveMessages` |
-| **Utility** (`0x6E`) | Implied by generic NEX unique ID use throughout; registered the same way Ultra Smash's server does |
 | **Monitoring** (`0x13`) / **Health** (`0x12`) | Every stock NEX 3.x title answers liveness pings; registered defensively, costs nothing |
+
+**Utility (`0x6E`) is registered but NOT confirmed** — see the cross-check
+below, which settles this one the other way from everything else in the
+table.
+
+## Cross-confirmed independently: kinnay's wiiu.json
+
+kinnay's site ([kinnay.github.io](https://kinnay.github.io)) publishes a
+second, much larger dataset behind the NEX server list page:
+[`data/wiiu.json`](https://kinnay.github.io/data/wiiu.json), a fingerprint
+database of every Wii U title kinnay has scanned — which NEX/PIA/etc.
+*library versions* are linked into each game's executable. It does **not**
+contain access keys (there is no such field in its schema; it's a different
+kind of data than the NEX server list page). But for Lost Reavers it does
+independently confirm, by matching this project's own RPX byte-for-byte
+(`rpxsize: 19016832`, the retail JPN build `WUP-P-APHJ` version 48):
+
+```json
+"nex":   [3, 10, 0]
+"nexrk": [3, 10, 0]   // Ranking
+"nexds": [3, 10, 0]   // DataStore
+"nexmm": [3, 10, 0]   // MatchMaking
+"nexms": [3, 10, 0]   // Messaging
+```
+
+— and the *absence* of `nexut` (Utility) from that same entry. This is the
+same kind of signal the Mario Tennis: Ultra Smash server's own README uses to
+justify **dropping** DataStore for that title (its library list has no
+`nexds`); here it points the other way for four of five protocols and
+disqualifies only Utility. Two independent sources (static string analysis
+of the executable, and kinnay's separate fingerprint scan of the same
+executable) now agree on:
+
+- **NEX version 3.10.0** (was a guessed placeholder before this cross-check)
+- DataStore, Ranking, MatchMaking and Messaging genuinely linked
+- Utility's linkage is unconfirmed — kept registered anyway, defensively
+
+Title IDs are triple-confirmed the same way: nex-viewer's `titleids.txt`,
+strings in the executable itself, and `wiiu.json`'s `aid` field (decimal
+`1407375153617152` / `1407375153711104` / `1407375153797376`, which is
+`000500001018D900` / `00050000101A4800` / `00050000101B9900` in hex) all
+agree exactly.
 
 One protocol is confirmed **linked but intentionally left unimplemented**:
 

@@ -26,14 +26,19 @@ Tennis: Ultra Smash servers use.
 | Title IDs | `000500001018D900` (JPN), `00050000101A4800` (USA), `00050000101B9900` (EUR) |
 | Game server ID | `0x1018D900` |
 | Access key | **UNKNOWN — see [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md)** |
-| NEX version | **UNCONFIRMED**, placeholder 3.9.0 — see docs/ACCESS_KEY.md |
+| NEX version | **3.10.0** — confirmed, see below |
 
-Sources: title IDs from Pretendo's
-[nex-viewer](https://github.com/PretendoNetwork/nex-viewer) `titleids.txt`
-(also present in the game's own executable strings). The access key is
-absent from every public source checked — kinnay's [NEX server list for Wii
-U](https://kinnay.github.io/view.html?page=nexwiiu), nex-viewer's
-`access.txt`, and the decompressed game executable itself.
+Sources: title IDs and NEX version are triple/cross-confirmed from
+independent sources: Pretendo's
+[nex-viewer](https://github.com/PretendoNetwork/nex-viewer) `titleids.txt`,
+the game's own executable strings, and kinnay's
+[wiiu.json](https://kinnay.github.io/data/wiiu.json) library fingerprint
+database, which also confirms DataStore/Ranking/MatchMaking/Messaging are
+genuinely linked (and Utility isn't) — see
+[docs/PROTOCOLS.md](docs/PROTOCOLS.md). The access key is the one thing
+absent from every public source checked, including that same fingerprint
+database (it records library *versions*, not credentials) — see
+[docs/ACCESS_KEY.md](docs/ACCESS_KEY.md).
 
 All three regions share one game server ID, so they share one matchmaking
 pool.
@@ -106,7 +111,7 @@ decompressed game executable, not guessed.
 | DataStore | `0x73` | Full implementation — object bodies in S3, metadata in Postgres |
 | Ranking | `0x70` | |
 | Messaging | `0x17` | |
-| Utility | `0x6E` | |
+| Utility | `0x6E` | **Not confirmed linked** (kinnay's library fingerprint has no `nexut`) — kept registered defensively, same call Ultra Smash's server makes for its own unconfirmed protocols |
 | Monitoring / Health | `0x13` / `0x12` | Liveness only |
 
 **Not implemented:** NintendoNotificationEvent (`0x64`) — confirmed linked,

@@ -60,7 +60,7 @@ func banner() {
 	globals.Logger.Infof("Lost Reavers NEX server")
 	globals.Logger.Infof("  Title IDs      %s (JPN) %s (USA) %s (EUR)", globals.TitleIDJPN, globals.TitleIDUSA, globals.TitleIDEUR)
 	globals.Logger.Infof("  Game server ID 0x%s", globals.GameServerID)
-	globals.Logger.Infof("  NEX version    %d.%d.%d (UNCONFIRMED -- see docs/ACCESS_KEY.md)", globals.Settings.NEXVersionMajor, globals.Settings.NEXVersionMinor, globals.Settings.NEXVersionPatch)
+	globals.Logger.Infof("  NEX version    %d.%d.%d", globals.Settings.NEXVersionMajor, globals.Settings.NEXVersionMinor, globals.Settings.NEXVersionPatch)
 	globals.Logger.Warningf("  Access key     %s (UNCONFIRMED -- no public source lists Lost Reavers' key; see docs/ACCESS_KEY.md)", maskAccessKey(globals.Settings.AccessKey))
 
 	if globals.Settings.LocalAuth {

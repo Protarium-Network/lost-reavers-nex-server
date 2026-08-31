@@ -48,15 +48,27 @@ import (
 //	Ranking            (0x70)  leaderboards
 //	Messaging          (0x17)  MessagingServiceDDLDeclarations is linked in;
 //	                           registered for real, not defensively
-//	Utility            (0x6E)  NEX unique IDs
 //	Monitoring         (0x13)  liveness ping
 //	Health             (0x12)  liveness ping
 //
-// One confirmed protocol has NO common implementation and is intentionally
-// left unregistered: NintendoNotificationEvent (0x64), used for friend
-// presence broadcasts. nex-protocols-common-go has no ready-made handler for
-// it, and the console will get a loud, logged NotImplemented instead of a
-// silent hang -- see docs/PROTOCOLS.md.
+// kinnay's Wii U title library database (wiiu.json, see globals/globals.go)
+// independently confirms nex 3.10.0 with nexrk+nexds+nexmm+nexms linked into
+// the retail JPN executable -- matching DataStore, Ranking, MatchMaking and
+// Messaging above exactly. It also settles one thing static string analysis
+// could not: nexut (Utility) is ABSENT from that list.
+//
+//	Utility (0x6E)  NEX unique IDs -- NOT confirmed linked (no nexut). Still
+//	                registered, the same "registered defensively" call Mario
+//	                Tennis: Ultra Smash's server makes for its own unconfirmed
+//	                protocols: already written, costs nothing at runtime, and
+//	                being wrong about a missing library flag is worse than an
+//	                unused handler.
+//
+// One confirmed-linked protocol has NO common implementation and is
+// intentionally left unregistered: NintendoNotificationEvent (0x64), used for
+// friend presence broadcasts. nex-protocols-common-go has no ready-made
+// handler for it, and the console will get a loud, logged NotImplemented
+// instead of a silent hang -- see docs/PROTOCOLS.md.
 func registerSecureProtocols() {
 	registerSecureConnection()
 	registerNATTraversal()

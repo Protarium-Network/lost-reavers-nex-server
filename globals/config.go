@@ -163,16 +163,15 @@ func LoadConfig() error {
 		problems = append(problems, err.Error())
 	}
 
-	// * 3.9.0 is an unconfirmed placeholder -- see the comment on globals.go's
-	// * game constants and docs/ACCESS_KEY.md. It is deliberately overridable
-	// * without a rebuild, because it will need correcting once a real capture
-	// * exists.
+	// * 3.10.0 is confirmed via kinnay's wiiu.json library fingerprint database
+	// * -- see the comment on globals.go's game constants. Still overridable
+	// * without a rebuild in case a packet capture ever shows otherwise.
 	nexMajor, err := envInt("PN_LR_NEX_VERSION_MAJOR", 3)
 	if err != nil {
 		problems = append(problems, err.Error())
 	}
 
-	nexMinor, err := envInt("PN_LR_NEX_VERSION_MINOR", 9)
+	nexMinor, err := envInt("PN_LR_NEX_VERSION_MINOR", 10)
 	if err != nil {
 		problems = append(problems, err.Error())
 	}
