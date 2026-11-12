@@ -197,7 +197,7 @@ Ultra Smash — see [globals/friends.go](globals/friends.go).
 ## Pointing a console at it
 
 Same as this project's other servers: install
-[Inkay](https://github.com/PretendoNetwork/Inkay) on on Aroma for a
+[Inkay](https://github.com/PretendoNetwork/Inkay) on Aroma for a
 retail console and point it at an account server that will issue a NEX
 token for game server ID `1018D900`. See
 [docs/ACCESS_KEY.md](docs/ACCESS_KEY.md) for the specific first run, which
